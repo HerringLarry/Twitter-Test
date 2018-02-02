@@ -1,5 +1,6 @@
 import twitter
 import enchant
+from langdetect import detect_langs
 
 def authorize():
     api = twitter.Api(consumer_key='w8wIecJnPAPcohjjkXnAl6Hur',
@@ -33,19 +34,46 @@ def parse_text(sentence,checker):
             if checker.check(x):
                 total = total + 1
             else:
+                print non_words
                 total = total + 1
                 non_words = non_words + 1
     return [total,non_words]
 
 def valid_word(word):
-    if word[0] == '@':
+    if len(word) > 3:
+        if word[0] == '@':
+            return False
+        elif word[0] == '#':
+            return False
+        elif word[0] == 'h' and word[1] == 't' and word[2] == 't' and word[3] == 'p':
+            return False
+        elif word[0] == 'w' and word[1] == 'w' and word[2] == 'w':
+            return False
+    elif is_number(word):
         return False
-    elif word[0] == '#':
-        return False
+    try:
+        if detect_lang(word) != "en":
+            print "hek"
+            print word
+            return False
+    except:
+        pass
     else:
         return True
 
-
+def is_number(num):
+    try:
+        float(num)
+        return True
+    except ValueError:
+        pass
+    try:
+        import unicodedata
+        unicodedata.numeric(num)
+        return True 
+    except (ValueError, TypeError):
+        pass
+    return False
 def main():
     print get_proportion(get_tweets('a', '2017-1-1',1000000))
 
